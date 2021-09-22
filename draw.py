@@ -1,8 +1,8 @@
 #import sys
 import math
-# TODO: Step 1 - get height (it must be int!)
+# TODO: Step 1 - get shape (it can't be blank and must be a valid shape)
 def get_shape():
-    valid_shapes = ["pyramid","square","triangle","circle","rhombus", "hexagon"]
+    valid_shapes = ["pyramid","square","triangle","circle","rhombus", "octagon"]
     while True:
         shape = input("Shape?: ").lower()
         if shape in valid_shapes:
@@ -10,7 +10,6 @@ def get_shape():
         #print("Error: invalid shape, please enter one from the list:")
         #print(valid_shapes)
         #Commented out the error message because the tests fail if I print anything other than "Shape?: "
-
     return shape
 
 # TODO: Step 1 - get height (it must be int!)
@@ -31,49 +30,43 @@ def get_height():
     return height
 
 def outlining(stars, outline, rows, height):
-    return stars if ((outline == False) | (rows == height)) else (stars[:1] + stars[1:len(stars)-1].replace("*", " ") + stars[len(stars)-1] if rows > 1 else stars)
+    return stars if ((outline == False) | (rows == height-1)) else (stars[:1] + stars[1:len(stars)-1].replace("*", " ") + stars[len(stars)-1] if rows > 0 else stars)
 
 # TODO: Step 2
 def draw_pyramid(height, outline):
-    #using iterative approach, it goes 1, 3, 5, ... or Tn = 2n-1
+    #using iterative approach, it goes 1, 3, 5, ... or Tn = 2n+1
     #spaces are symmetrical and each side gets h-1, h-2, h-3, ... 0 spaces or Tn = h - n
-    for rows in range (1, height+1): 
-        print((height - rows) * " " + outlining((2 * rows - 1) * "*", outline, rows, height))
+    for rows in range (height): 
+        print((height - rows - 1)*" " + outlining((2 * rows + 1)*"*", outline, rows, height))
 
 # TODO: Step 3
 def draw_square(height, outline):
-    for rows in range (1, height+1): 
-        stars = (height)*"*"
-        output = outlining(stars, outline, rows, height)
-        print(output)
+    #Each line has the same amount of stars, based on height or Tn = height
+    for rows in range (height): 
+        print(outlining((height)*"*", outline, rows, height))
 
 # TODO: Step 4
 def draw_triangle(height, outline):
-    for rows in range (1, height+1): 
-        stars = (rows)*"*"
-        output = outlining(stars, outline, rows, height)
-        print(output)
+    
+    for rows in range (height): 
+        print(outlining((rows+1)*"*", outline, rows, height))
 
 def draw_circle(height, outline):
-    for rows in range (0, height+1): 
-        stars = (round(math.sqrt((height/2)**2 - (rows-height/2)**2 )+height/2))*"*"
-        output = ((height-len(stars)))*" " + outlining(stars*2, outline, rows if rows != 1 else 2, height)
-        print(output)
+    for rows in range (height+1): 
+        stars = (round(math.sqrt((height / 2)**2 - (rows-height / 2)**2 ) + height / 2))*"*"
+        print(((height - len(stars)))*" " + outlining(stars * 2, outline, rows , height+1))
         
-
 def draw_rhombus(height, outline):
-    for rows in range (1, height+1): 
-        output = (height - rows)*" " 
-        stars = (height)*"*"
-        output += outlining(stars, outline, rows, height)
-        print(output)
+    for rows in range(height): 
+        print((rows)*" " + outlining((height)*"*", outline, rows, height))
 
-def draw_hexagon(height, outline):
-    for rows in range (1, height+1):
-        output = (height - rows)*" " 
-        stars = (2*rows-1)*"*"
-        output += outlining(stars, outline, rows, height)
-        print(output)
+def draw_octagon(height, outline):
+    for rows in range ((height//3)): #Top
+        print((height//3 - rows)*" " + outlining((2 * rows + height - 2*(height//3))*"*", outline, rows, height))
+    for rows in range (height - 2*(height//3)): #Middle
+        print(outlining((height)*"*", outline, rows + height//3, height))
+    for rows in range (height//3): #Bottom
+        print((rows+1)*" " + outlining((height - 2 * (rows+1))*"*", outline, rows + height - height//3, height))
 
 # TODO: Steps 2 to 4, 6 - add support for other shapes
 def draw(shape, height, outline):
@@ -82,10 +75,8 @@ def draw(shape, height, outline):
     elif shape == "square": draw_square(height, outline)
     elif shape == "circle": draw_circle(height, outline)
     elif shape == "rhombus": draw_rhombus(height, outline)
-    elif shape == "hexagon": draw_hexagon(height, outline)
+    elif shape == "octagon": draw_octagon(height, outline)
     #elif shape == "custom": draw_shape(height, outline) #I gave up on this feature
-
-    
 
 # TODO: Step 5 - get input from user to draw outline or solid
 def get_outline():
@@ -97,7 +88,6 @@ def get_outline():
         return True
     return False
         
-
 if __name__ == "__main__":
     shape_param = get_shape()
     height_param = get_height()
